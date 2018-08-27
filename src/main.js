@@ -10,7 +10,11 @@ import 'vuetify/dist/vuetify.min.css'
 import 'material-design-icons-iconfont/dist/material-design-icons.css'
 import '@mdi/font/css/materialdesignicons.min.css'
 
-Vue.use(Vuetify)
+Vue.use(Vuetify, {
+  theme: {
+    primary: '#1272e4'
+  }
+})
 
 Vue.config.productionTip = false
 
@@ -22,3 +26,7 @@ new Vue({
   components: { App },
   template: '<App/>'
 })
+
+window.onbeforeunload = function () {
+  localStorage.setItem('lastAddr', store.state.databases.currentDatabase)
+}

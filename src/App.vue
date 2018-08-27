@@ -2,7 +2,7 @@
   <div id="app">
     <v-app>
       <v-toolbar
-        color="red darken-4"
+        color="primary"
         app
         fixed
         prominent
@@ -36,6 +36,10 @@
 
 export default {
   name: 'App',
+
+  mounted () {
+    this.currentDatabase = localStorage.getItem('lastAddr')
+  },
 
   data () {
     return {
