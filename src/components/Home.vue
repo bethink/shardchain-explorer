@@ -12,7 +12,7 @@
                 text-sm-center
                 text-md-center
               >
-                WE DO SAVE THE WORLD
+                <Logo id="logo"/>
               </v-flex>
               <v-text-field
                 v-model.trim="searchContent"
@@ -96,11 +96,17 @@
 <script>
 import { blocks, acks, requests } from '@/api/covenantsql'
 import toolkit from '@/components/Utils/toolkit'
+import Logo from '@/assets/logo.svg'
 
 const NUM_SHOW_RECENT_BLOCKS = 10
 
 export default {
   mixins: [toolkit],
+
+  components: {
+    Logo
+  },
+
   mounted () {
     this.refreshLatestBlocks()
   },
@@ -207,5 +213,12 @@ export default {
 .has-sql {
   font-size: 0.75em;
   font-weight: bold;
+}
+#logo {
+  fill: #1272e4;
+  height: 48px;
+}
+#logo:hover {
+  fill: black;
 }
 </style>
