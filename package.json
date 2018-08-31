@@ -1,6 +1,6 @@
 {
   "name": "aletheia",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "The CovenantSQL blockchain explorer",
   "author": "mingjie.tang@covenantsql.io",
   "private": true,
@@ -64,6 +64,7 @@
     "url-loader": "^0.5.8",
     "vue-loader": "^13.3.0",
     "vue-style-loader": "^3.0.1",
+    "vue-svg-loader": "^0.8.0",
     "vue-template-compiler": "^2.5.2",
     "webpack": "^3.6.0",
     "webpack-bundle-analyzer": "^2.9.0",
