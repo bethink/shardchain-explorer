@@ -62,7 +62,16 @@
 
             <!-- the latest blocks -->
             <v-layout column v-if="results.length == 0">
-              <v-flex caption>LATEST BLOCKS</v-flex>
+              <v-flex caption>
+                <v-layout row wrap>
+                  <v-flex md6 xs6>
+                    LATEST BLOCKS
+                  </v-flex>
+                  <v-flex md6 xs6 text-md-right text-xs-right>
+                    <router-link class="font-weight-bold" :to="{name: 'BlockList', params:{db: currentDatabase}}">MORE</router-link>
+                  </v-flex>
+                </v-layout>
+              </v-flex>
               <v-list dense class="mono">
                 <v-list-tile
                   avatar
@@ -176,16 +185,13 @@ export default {
 
     async refreshLatestBlocks () {
       this.latestBlocks = []
-      if (!this.currentDatabase) {
-        return
-      }
-      let promises = []
-      for (let i = 0; i < NUM_SHOW_RECENT_BLOCKS; i++) {
-        promises.push(blocks.getBlockByHeight(this.currentDatabase, i))
-      }
-
-      let result = await Promise.all(promises)
-      this.latestBlocks = result.map(x => x.data.data.block)
+      let maxHeight = await blocks.getMaxHeight(this.currentDatabase)
+      let result = await blocks.getBlockList(
+        this.currentDatabase,
+        maxHeight + 1,
+        maxHeight - NUM_SHOW_RECENT_BLOCKS
+      )
+      this.latestBlocks = result
     }
   },
 
