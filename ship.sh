@@ -13,3 +13,5 @@ fi
 
 tar zcvf "${TAR_GZ_FILE}" ./dist
 scp "${TAR_GZ_FILE}" ggicci@192.168.2.100:/home/ggicci/deploy/aletheia/
+scp "${TAR_GZ_FILE}" seafile@api.tokenmetric.io:/home/seafile/deploy/aletheia/
+
