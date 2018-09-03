@@ -186,10 +186,13 @@ export default {
     async refreshLatestBlocks () {
       this.latestBlocks = []
       let maxHeight = await blocks.getMaxHeight(this.currentDatabase)
+      let startHeight = maxHeight + 1
+      let endHeight = startHeight - NUM_SHOW_RECENT_BLOCKS
+      endHeight = endHeight < 0 ? 0 : endHeight
       let result = await blocks.getBlockList(
         this.currentDatabase,
-        maxHeight + 1,
-        maxHeight - NUM_SHOW_RECENT_BLOCKS
+        startHeight,
+        endHeight
       )
       this.latestBlocks = result
     }
