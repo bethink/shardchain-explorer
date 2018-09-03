@@ -22,7 +22,7 @@
         </v-text-field>
       </v-toolbar>
       <v-content>
-        <v-container fluid fill-height>
+        <v-container fluid>
           <router-view></router-view>
         </v-container>
       </v-content>
@@ -37,7 +37,7 @@
 export default {
   name: 'App',
 
-  mounted () {
+  created () {
     this.currentDatabase = localStorage.getItem('lastAddr')
   },
 
@@ -70,5 +70,11 @@ export default {
 .site-title {
   color: white;
   text-decoration: none;
+}
+.sql-type-read {
+  color: #388e3c;
+}
+.sql-type-write {
+  color: #d32f2f;
 }
 </style>

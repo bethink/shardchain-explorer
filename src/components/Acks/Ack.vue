@@ -69,7 +69,7 @@ import toolkit from '@/components/Utils/toolkit'
 export default {
   mixins: [toolkit],
   mounted () {
-    this.$store.dispatch('databases/setCurrentDatabase', this.$route.params.db)
+    this.currentDatabase = this.$route.params.db
     this.refreshAck()
   },
 
@@ -83,6 +83,17 @@ export default {
         response: {
           hash: ''
         }
+      }
+    }
+  },
+
+  computed: {
+    currentDatabase: {
+      get () {
+        return this.$store.state.databases.currentDatabase
+      },
+      set (newValue) {
+        this.$store.dispatch('databases/setCurrentDatabase', newValue)
       }
     }
   },
