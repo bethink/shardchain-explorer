@@ -16,6 +16,30 @@ export default {
     return api.get(`/v1/block/${db}/${hash}`)
   },
 
+  async getBlockByCountIgnoreError (db, count) {
+    try {
+      const resp = await this.getBlockByCount(db, count)
+      let block = resp.data.data.block
+      // if (block.count >= 90 && block.count < 94) {
+      //   block.error = { status: 'mock error' }
+      // }
+      return block
+    } catch (error) {
+      const errorResp = error.response.data
+      console.error(`get block ${count} failed: ${JSON.stringify(errorResp)}`)
+      return {
+        count: count,
+        hash: '',
+        height: 0,
+        producer: '',
+        queries: [],
+        timestamp: 0,
+        version: 0,
+        error: errorResp
+      }
+    }
+  },
+
   async getBlockList (db, startCount, endCount) {
     let blockList = []
     if (!db || startCount === endCount) {
@@ -26,16 +50,15 @@ export default {
 
     if (startCount < endCount) {
       for (let i = startCount; i < endCount; i++) {
-        promises.push(this.getBlockByCount(db, i))
+        promises.push(this.getBlockByCountIgnoreError(db, i))
       }
     } else {
       for (let i = startCount - 1; i >= endCount; i--) {
-        promises.push(this.getBlockByCount(db, i))
+        promises.push(this.getBlockByCountIgnoreError(db, i))
       }
     }
 
-    let result = await Promise.all(promises)
-    blockList = result.map(x => x.data.data.block)
+    blockList = await Promise.all(promises)
     return blockList
   },
 

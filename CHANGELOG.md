@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## 1.5.0 (Sep 27, 2018)
+
+- Show error information in block lists.
+
 ## 1.4.0 (Sep 27, 2018)
 
 - API upgrade, use continuous field count instead of height;
