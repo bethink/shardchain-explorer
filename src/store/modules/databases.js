@@ -37,12 +37,21 @@ const mutations = {
       state.databaseList = copyList
       console.debug('store.databases.ADD_NEW_DATABASE:', db)
     }
+  },
+
+  REMOVE_DATABASE (state, db) {
+    let found = state.databaseList.indexOf(db)
+    if (found > -1) {
+      state.databaseList.splice(found, 1)
+      console.debug('store.databases.REMOVE_DATABASE:', db)
+    }
   }
 }
 
 const actions = {
   setCurrentDatabase ({ commit }, payload) {
     commit('SET_CURRENT_DATABASE', payload)
+    commit('ADD_NEW_DATABASE', payload)
   },
 
   loadDatabaseList ({ commit }) {
@@ -51,6 +60,10 @@ const actions = {
 
   addNewDatabase ({ commit }, payload) {
     commit('ADD_NEW_DATABASE', payload)
+  },
+
+  removeDatabase ({ commit }, payload) {
+    commit('REMOVE_DATABASE', payload)
   }
 }
 

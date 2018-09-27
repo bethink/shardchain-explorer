@@ -22,7 +22,7 @@
         <v-card class="mt-1" v-if="currentDatabase">
           <v-card-title primary-title>
             <!-- the search results -->
-            <v-layout column v-if="results.length > 0">
+            <v-layout column v-if="searchContent !== ''">
               <v-flex caption>SEARCH RESULT</v-flex>
               <v-list dense class="mono">
                 <v-list-tile avatar v-for="item in results" :key="item.target" :to="item.href">
@@ -43,7 +43,7 @@
             </v-layout>
 
             <!-- the latest blocks -->
-            <v-layout column v-if="results.length == 0">
+            <v-layout column v-else>
               <v-flex caption>
                 <v-layout row wrap>
                   <v-flex md6 xs6>
@@ -55,7 +55,7 @@
                 </v-layout>
               </v-flex>
               <v-list dense class="mono">
-                <v-list-tile avatar v-for="item in latestBlocks" :key="item.count" :to="`/blocks/${currentDatabase}/${item.count}`">
+                <v-list-tile avatar v-for="item in latestBlocks" :key="item.count" :to="{name:'Block', params:{db:currentDatabase, hash:item.count}}">
                   <v-list-tile-title>
                     <v-layout row wrap>
                       <v-flex md2 sm2>#{{ item.count }}</v-flex>
@@ -81,6 +81,8 @@
 </template>
 
 <script>
+// import { createNamespacedHelpers } from 'vuex'
+// const { mapState } = createNamespacedHelpers('databases')
 import { blocks, acks, requests } from '@/api/covenantsql'
 import toolkit from '@/components/Utils/toolkit'
 import Logo from '@/assets/logo.svg'
@@ -95,7 +97,8 @@ export default {
   },
 
   mounted () {
-    this.refreshLatestBlocks()
+    this.currentDatabase = this.$route.params.db
+    this.reload()
   },
 
   data () {
@@ -106,14 +109,32 @@ export default {
     }
   },
 
+  computed: {
+    // ...mapState({
+    //   currentDatabase: state => state.currentDatabase
+    // })
+    currentDatabase: {
+      get () {
+        return this.$store.state.databases.currentDatabase
+      },
+      set (newValue) {
+        this.$store.dispatch('databases/setCurrentDatabase', newValue)
+      }
+    }
+  },
+
   watch: {
     currentDatabase: function (to, from) {
       console.debug('watch(currentDatabase): ', from, ' --> ', to)
-      this.refreshLatestBlocks()
+      this.reload()
     }
   },
 
   methods: {
+    reload () {
+      this.refreshLatestBlocks()
+    },
+
     search () {
       console.log('searching...')
       if (!this.$store.state.databases.currentDatabase) {
@@ -136,7 +157,13 @@ export default {
           this.results.push({
             target: 'BLOCK',
             result: `${this.substr(block.hash, 32)} #${block.count}`,
-            href: `/blocks/${this.currentDatabase}/${block.count}`
+            href: {
+              name: 'Block',
+              params: {
+                db: this.currentDatabase,
+                hash: block.count
+              }
+            }
           })
         })
 
@@ -145,7 +172,13 @@ export default {
         this.results.push({
           target: 'ACK',
           result: this.substr(ack.hash, 32),
-          href: `/acks/${this.currentDatabase}/${ack.hash}`
+          href: {
+            name: 'Ack',
+            params: {
+              db: this.currentDatabase,
+              hash: ack.hash
+            }
+          }
         })
       })
 
@@ -156,7 +189,13 @@ export default {
           this.results.push({
             target: 'REQUEST',
             result: this.substr(request.hash, 32),
-            href: `/requests/${this.currentDatabase}/${request.hash}`
+            href: {
+              name: 'Request',
+              params: {
+                db: this.currentDatabase,
+                hash: request.hash
+              }
+            }
           })
         })
     },
@@ -173,12 +212,6 @@ export default {
         endCount
       )
       this.latestBlocks = result
-    }
-  },
-
-  computed: {
-    currentDatabase () {
-      return this.$store.state.databases.currentDatabase
     }
   }
 }
