@@ -3,34 +3,34 @@ import api from './config'
 export default {
   getBlockProxy (db, key) {
     if (key.length !== 64) {
-      return this.getBlockByHeight(db, key)
+      return this.getBlockByCount(db, key)
     }
     return this.getBlockByHash(db, key)
   },
 
-  getBlockByHeight (db, height) {
-    return api.get(`/v1/height/${db}/${height}`)
+  getBlockByCount (db, count) {
+    return api.get(`/v1/count/${db}/${count}`)
   },
 
   getBlockByHash (db, hash) {
     return api.get(`/v1/block/${db}/${hash}`)
   },
 
-  async getBlockList (db, startHeight, endHeight) {
+  async getBlockList (db, startCount, endCount) {
     let blockList = []
-    if (!db || startHeight === endHeight) {
+    if (!db || startCount === endCount) {
       return blockList
     }
 
     let promises = []
 
-    if (startHeight < endHeight) {
-      for (let i = startHeight; i < endHeight; i++) {
-        promises.push(this.getBlockByHeight(db, i))
+    if (startCount < endCount) {
+      for (let i = startCount; i < endCount; i++) {
+        promises.push(this.getBlockByCount(db, i))
       }
     } else {
-      for (let i = startHeight - 1; i >= endHeight; i--) {
-        promises.push(this.getBlockByHeight(db, i))
+      for (let i = startCount - 1; i >= endCount; i--) {
+        promises.push(this.getBlockByCount(db, i))
       }
     }
 
@@ -39,8 +39,8 @@ export default {
     return blockList
   },
 
-  async getMaxHeight (db) {
-    let result = await api.get(`/v1/head/${db}`)
-    return result.data.data.block.height
+  async getMaxCount (db) {
+    let result = await api.get(`/v2/head/${db}`)
+    return result.data.data.block.count
   }
 }

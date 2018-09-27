@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## 1.4.0 (Sep 27, 2018)
+
+- API upgrade, use continuous field count instead of height;
+- Database selector component enhancement.
+
 ## 1.3.1 (Sep 3, 2018)
 
 - Fix block list height start/end error.

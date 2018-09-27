@@ -1,28 +1,14 @@
 <template>
-  <v-layout row wrap justify-center fill-height>
+  <v-layout row wrap justify-center fill-count>
     <v-flex md8 sm8>
       <v-layout column>
         <v-card>
           <v-card-title primary-title>
             <v-layout column>
-              <v-flex
-                headline
-                primary--text
-                text--darken-1
-                text-sm-center
-                text-md-center
-              >
-                <Logo id="logo"/>
+              <v-flex headline primary--text text--darken-1 text-sm-center text-md-center>
+                <Logo id="logo" />
               </v-flex>
-              <v-text-field
-                v-model.trim="searchContent"
-                hide-details
-                label="Hashes / Block Height / Kayak Offset ..."
-                single-line
-                append-icon="mdi-magnify"
-                color="primary darken-1"
-                @input="search"
-              ></v-text-field>
+              <v-text-field v-model.trim="searchContent" hide-details label="Hashes / Block Count / Kayak Offset ..." single-line append-icon="mdi-magnify" color="primary darken-1" @input="search"></v-text-field>
             </v-layout>
           </v-card-title>
         </v-card>
@@ -36,14 +22,10 @@
         <v-card class="mt-1" v-if="currentDatabase">
           <v-card-title primary-title>
             <!-- the search results -->
-            <v-layout column v-if="results.length > 0">
+            <v-layout column v-if="searchContent !== ''">
               <v-flex caption>SEARCH RESULT</v-flex>
               <v-list dense class="mono">
-                <v-list-tile
-                  avatar
-                  v-for="item in results" :key="item.target"
-                  :to="item.href"
-                >
+                <v-list-tile avatar v-for="item in results" :key="item.target" :to="item.href">
                   <v-list-tile-content>
                     <v-list-tile-title>
                       <v-layout row wrap>
@@ -61,7 +43,7 @@
             </v-layout>
 
             <!-- the latest blocks -->
-            <v-layout column v-if="results.length == 0">
+            <v-layout column v-else>
               <v-flex caption>
                 <v-layout row wrap>
                   <v-flex md6 xs6>
@@ -73,14 +55,10 @@
                 </v-layout>
               </v-flex>
               <v-list dense class="mono">
-                <v-list-tile
-                  avatar
-                  v-for="item in latestBlocks" :key="item.height"
-                  :to="`/blocks/${currentDatabase}/${item.height}`"
-                >
+                <v-list-tile avatar v-for="item in latestBlocks" :key="item.count" :to="{name:'Block', params:{db:currentDatabase, hash:item.count}}">
                   <v-list-tile-title>
                     <v-layout row wrap>
-                      <v-flex md2 sm2>#{{ item.height }}</v-flex>
+                      <v-flex md2 sm2>#{{ item.count }}</v-flex>
                       <v-flex md6 sm6>
                         {{ humanReadableTime(item.timestamp) }}
                       </v-flex>
@@ -103,6 +81,8 @@
 </template>
 
 <script>
+// import { createNamespacedHelpers } from 'vuex'
+// const { mapState } = createNamespacedHelpers('databases')
 import { blocks, acks, requests } from '@/api/covenantsql'
 import toolkit from '@/components/Utils/toolkit'
 import Logo from '@/assets/logo.svg'
@@ -117,7 +97,8 @@ export default {
   },
 
   mounted () {
-    this.refreshLatestBlocks()
+    this.currentDatabase = this.$route.params.db
+    this.reload()
   },
 
   data () {
@@ -128,14 +109,32 @@ export default {
     }
   },
 
+  computed: {
+    // ...mapState({
+    //   currentDatabase: state => state.currentDatabase
+    // })
+    currentDatabase: {
+      get () {
+        return this.$store.state.databases.currentDatabase
+      },
+      set (newValue) {
+        this.$store.dispatch('databases/setCurrentDatabase', newValue)
+      }
+    }
+  },
+
   watch: {
     currentDatabase: function (to, from) {
       console.debug('watch(currentDatabase): ', from, ' --> ', to)
-      this.refreshLatestBlocks()
+      this.reload()
     }
   },
 
   methods: {
+    reload () {
+      this.refreshLatestBlocks()
+    },
+
     search () {
       console.log('searching...')
       if (!this.$store.state.databases.currentDatabase) {
@@ -157,8 +156,14 @@ export default {
           let block = resp.data.data.block
           this.results.push({
             target: 'BLOCK',
-            result: `${this.substr(block.hash, 32)} #${block.height}`,
-            href: `/blocks/${this.currentDatabase}/${block.height}`
+            result: `${this.substr(block.hash, 32)} #${block.count}`,
+            href: {
+              name: 'Block',
+              params: {
+                db: this.currentDatabase,
+                hash: block.count
+              }
+            }
           })
         })
 
@@ -167,7 +172,13 @@ export default {
         this.results.push({
           target: 'ACK',
           result: this.substr(ack.hash, 32),
-          href: `/acks/${this.currentDatabase}/${ack.hash}`
+          href: {
+            name: 'Ack',
+            params: {
+              db: this.currentDatabase,
+              hash: ack.hash
+            }
+          }
         })
       })
 
@@ -178,29 +189,29 @@ export default {
           this.results.push({
             target: 'REQUEST',
             result: this.substr(request.hash, 32),
-            href: `/requests/${this.currentDatabase}/${request.hash}`
+            href: {
+              name: 'Request',
+              params: {
+                db: this.currentDatabase,
+                hash: request.hash
+              }
+            }
           })
         })
     },
 
     async refreshLatestBlocks () {
       this.latestBlocks = []
-      let maxHeight = await blocks.getMaxHeight(this.currentDatabase)
-      let startHeight = maxHeight + 1
-      let endHeight = startHeight - NUM_SHOW_RECENT_BLOCKS
-      endHeight = endHeight < 0 ? 0 : endHeight
+      let maxCount = await blocks.getMaxCount(this.currentDatabase)
+      let startCount = maxCount + 1
+      let endCount = startCount - NUM_SHOW_RECENT_BLOCKS
+      endCount = endCount < 0 ? 0 : endCount
       let result = await blocks.getBlockList(
         this.currentDatabase,
-        startHeight,
-        endHeight
+        startCount,
+        endCount
       )
       this.latestBlocks = result
-    }
-  },
-
-  computed: {
-    currentDatabase () {
-      return this.$store.state.databases.currentDatabase
     }
   }
 }
@@ -228,6 +239,6 @@ export default {
   height: 48px;
 }
 #logo:hover {
-  fill: black;
+  fill: #0c60c3;
 }
 </style>

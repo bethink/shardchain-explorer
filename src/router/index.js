@@ -13,6 +13,7 @@ const rv = {
 }
 
 export default new Router({
+  mode: 'history',
   routes: [
     {
       path: '/',
@@ -20,43 +21,57 @@ export default new Router({
       component: Home
     },
     {
-      path: '/blocks',
+      path: '/dbs/:db',
       component: rv,
       children: [
         {
-          // TEST URL: http://localhost:8080/#/blocks/057e55460f501ad071383c95f691293f2f0a7895988e22593669ceeb52a6452a
-          path: ':db',
-          name: 'BlockList',
-          component: BlockList
+          path: '',
+          name: 'Database',
+          component: Home
         },
         {
-          path: ':db/:hash',
-          name: 'Block',
-          component: Block
+          path: 'blocks',
+          component: rv,
+          children: [
+            {
+              path: '',
+              name: 'BlockList',
+              component: BlockList
+            },
+            {
+              path: ':hash',
+              name: 'Block',
+              component: Block
+            }
+          ]
+        },
+        {
+          path: 'acks',
+          component: rv,
+          children: [
+            {
+              path: ':hash',
+              name: 'Ack',
+              component: Ack
+            }
+          ]
+        },
+        {
+          path: 'requests',
+          component: rv,
+          children: [
+            {
+              path: ':hash',
+              name: 'Request',
+              component: Request
+            }
+          ]
         }
       ]
     },
     {
-      path: '/acks',
-      component: rv,
-      children: [
-        {
-          path: ':db/:hash',
-          name: 'Ack',
-          component: Ack
-        }
-      ]
-    },
-    {
-      path: '/requests',
-      component: rv,
-      children: [
-        {
-          path: ':db/:hash',
-          name: 'Request',
-          component: Request
-        }
-      ]
+      path: '*',
+      redirect: '/'
     }
   ]
 })

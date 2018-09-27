@@ -1,25 +1,14 @@
 <template>
   <div id="app">
     <v-app>
-      <v-toolbar
-        color="primary"
-        app
-        fixed
-        prominent
-        dark
-        class="pt-1"
-      >
+      <v-toolbar color="primary" app fixed prominent dark class="pt-1">
         <v-toolbar-title>
-          <router-link to="/" class="site-title">CovenantSQL Explorer</router-link>
+          <router-link :to="{name:'Database', params:{db: currentDatabase}}" class="site-title">CovenantSQL Explorer</router-link>
         </v-toolbar-title>
         <v-spacer></v-spacer>
-        <v-text-field
-          v-model="currentDatabase"
-          prepend-icon="mdi-database"
-          color="white"
-          placeholder="Database Address"
-        >
-        </v-text-field>
+        <v-toolbar-items>
+          <database-selector></database-selector>
+        </v-toolbar-items>
       </v-toolbar>
       <v-content>
         <v-container fluid>
@@ -31,34 +20,21 @@
 </template>
 
 <script>
-// import { createNamespacedHelpers } from 'vuex'
-// const { mapState } = createNamespacedHelpers('databases')
+import { createNamespacedHelpers } from 'vuex'
+import DatabaseSelector from '@/components/DatabaseSelector'
+const { mapState } = createNamespacedHelpers('databases')
 
 export default {
   name: 'App',
 
-  created () {
-    this.currentDatabase = localStorage.getItem('lastAddr')
-  },
-
-  data () {
-    return {
-      databaseHistory: []
-    }
+  components: {
+    'database-selector': DatabaseSelector
   },
 
   computed: {
-    // ...mapState({
-    //   currentDatabase: state => state.currentDatabase
-    // })
-    currentDatabase: {
-      get () {
-        return this.$store.state.databases.currentDatabase
-      },
-      set (newValue) {
-        this.$store.dispatch('databases/setCurrentDatabase', newValue)
-      }
-    }
+    ...mapState({
+      currentDatabase: state => state.currentDatabase
+    })
   }
 }
 </script>

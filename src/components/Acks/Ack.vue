@@ -27,9 +27,10 @@
               </v-flex>
               <v-flex md2 sm2 caption pl-3>-Hash</v-flex>
               <v-flex md10 sm10>
-                <router-link :to="'/requests/' + $route.params.db + '/' + ack.request.hash" >{{ ack.request.hash }}</router-link>
+                <router-link :to="{name:'Request', params:{db:$route.params.db,hash:$route.params.hash}}">{{ ack.request.hash }}</router-link>
               </v-flex>
-              <v-flex md2 sm2 caption pl-3>-Node</v-flex>
+              <v-flex md2 sm2 caption pl-3>-Node
+              </v-flex>
               <v-flex md10 sm10>{{ ack.request.node }}</v-flex>
               <v-flex md2 sm2 caption pl-3>-Type</v-flex>
               <v-flex md10 sm10>{{ ack.request.type }}</v-flex>
