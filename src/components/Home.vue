@@ -1,28 +1,14 @@
 <template>
-  <v-layout row wrap justify-center fill-height>
+  <v-layout row wrap justify-center fill-count>
     <v-flex md8 sm8>
       <v-layout column>
         <v-card>
           <v-card-title primary-title>
             <v-layout column>
-              <v-flex
-                headline
-                primary--text
-                text--darken-1
-                text-sm-center
-                text-md-center
-              >
-                <Logo id="logo"/>
+              <v-flex headline primary--text text--darken-1 text-sm-center text-md-center>
+                <Logo id="logo" />
               </v-flex>
-              <v-text-field
-                v-model.trim="searchContent"
-                hide-details
-                label="Hashes / Block Height / Kayak Offset ..."
-                single-line
-                append-icon="mdi-magnify"
-                color="primary darken-1"
-                @input="search"
-              ></v-text-field>
+              <v-text-field v-model.trim="searchContent" hide-details label="Hashes / Block Count / Kayak Offset ..." single-line append-icon="mdi-magnify" color="primary darken-1" @input="search"></v-text-field>
             </v-layout>
           </v-card-title>
         </v-card>
@@ -39,11 +25,7 @@
             <v-layout column v-if="results.length > 0">
               <v-flex caption>SEARCH RESULT</v-flex>
               <v-list dense class="mono">
-                <v-list-tile
-                  avatar
-                  v-for="item in results" :key="item.target"
-                  :to="item.href"
-                >
+                <v-list-tile avatar v-for="item in results" :key="item.target" :to="item.href">
                   <v-list-tile-content>
                     <v-list-tile-title>
                       <v-layout row wrap>
@@ -73,14 +55,10 @@
                 </v-layout>
               </v-flex>
               <v-list dense class="mono">
-                <v-list-tile
-                  avatar
-                  v-for="item in latestBlocks" :key="item.height"
-                  :to="`/blocks/${currentDatabase}/${item.height}`"
-                >
+                <v-list-tile avatar v-for="item in latestBlocks" :key="item.count" :to="`/blocks/${currentDatabase}/${item.count}`">
                   <v-list-tile-title>
                     <v-layout row wrap>
-                      <v-flex md2 sm2>#{{ item.height }}</v-flex>
+                      <v-flex md2 sm2>#{{ item.count }}</v-flex>
                       <v-flex md6 sm6>
                         {{ humanReadableTime(item.timestamp) }}
                       </v-flex>
@@ -157,8 +135,8 @@ export default {
           let block = resp.data.data.block
           this.results.push({
             target: 'BLOCK',
-            result: `${this.substr(block.hash, 32)} #${block.height}`,
-            href: `/blocks/${this.currentDatabase}/${block.height}`
+            result: `${this.substr(block.hash, 32)} #${block.count}`,
+            href: `/blocks/${this.currentDatabase}/${block.count}`
           })
         })
 
@@ -185,14 +163,14 @@ export default {
 
     async refreshLatestBlocks () {
       this.latestBlocks = []
-      let maxHeight = await blocks.getMaxHeight(this.currentDatabase)
-      let startHeight = maxHeight + 1
-      let endHeight = startHeight - NUM_SHOW_RECENT_BLOCKS
-      endHeight = endHeight < 0 ? 0 : endHeight
+      let maxCount = await blocks.getMaxCount(this.currentDatabase)
+      let startCount = maxCount + 1
+      let endCount = startCount - NUM_SHOW_RECENT_BLOCKS
+      endCount = endCount < 0 ? 0 : endCount
       let result = await blocks.getBlockList(
         this.currentDatabase,
-        startHeight,
-        endHeight
+        startCount,
+        endCount
       )
       this.latestBlocks = result
     }
@@ -228,6 +206,6 @@ export default {
   height: 48px;
 }
 #logo:hover {
-  fill: black;
+  fill: #0c60c3;
 }
 </style>

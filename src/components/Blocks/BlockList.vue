@@ -1,26 +1,15 @@
 <template>
   <v-layout row wrap justify-center>
     <v-flex md10 sm12>
-      <v-data-table
-        :headers="blockListHeaders"
-        :items="blockList"
-        :total-items="total"
-        :pagination.sync="pagination"
-        :loading="loading"
-        class="elevation-1"
-        item-key="height"
-        :rows-per-page-items="[10,20,30,50]"
-      >
+      <v-data-table :headers="blockListHeaders" :items="blockList" :total-items="total" :pagination.sync="pagination" :loading="loading" class="elevation-1" item-key="count" :rows-per-page-items="[10,20,30,50]">
         <template slot="items" slot-scope="props">
           <tr class="mono">
-            <td>{{ props.item.height }}</td>
+            <td>{{ props.item.count }}</td>
             <td>{{ humanReadableTime(props.item.timestamp) }}</td>
             <td>{{ substr(props.item.hash, 32) }}</td>
-            <td
-              :class="props.item.queries.length > 0 ? 'primary--text font-weight-bold' : 'grey--text'"
-            >{{ props.item.queries.length > 0 ? props.item.queries.length : 'none' }}</td>
+            <td :class="props.item.queries.length > 0 ? 'primary--text font-weight-bold' : 'grey--text'">{{ props.item.queries.length > 0 ? props.item.queries.length : 'none' }}</td>
             <td>
-              <v-btn flat icon color="primary" :to="{name: 'Block', params: {db: currentDatabase, hash: props.item.height}}">
+              <v-btn flat icon color="primary" :to="{name: 'Block', params: {db: currentDatabase, hash: props.item.count}}">
                 <v-icon small>mdi-eye</v-icon>
               </v-btn>
             </td>
@@ -46,7 +35,7 @@ export default {
     return {
       blockList: [],
       blockListHeaders: [
-        { text: '# Height', value: 'height' },
+        { text: '# Count', value: 'count' },
         { text: 'Time', value: 'time', sortable: false },
         { text: 'Hash', value: 'hash', sortable: false },
         { text: 'SQL', value: 'sql', sortable: false },
@@ -54,7 +43,7 @@ export default {
       ],
       pagination: {
         rowsPerPage: 10,
-        sortBy: 'height',
+        sortBy: 'count',
         descending: true
       },
       total: 0,
@@ -86,27 +75,27 @@ export default {
       console.log(this.pagination)
       const { sortBy, descending, page, rowsPerPage } = this.pagination
       this.loading = true
-      this.total = (await blocks.getMaxHeight(this.currentDatabase)) + 1
-      let startHeight = (page - 1) * rowsPerPage
-      let endHeight = startHeight + rowsPerPage
-      if (endHeight > this.total) {
-        endHeight = this.total
+      this.total = (await blocks.getMaxCount(this.currentDatabase)) + 1
+      let startCount = (page - 1) * rowsPerPage
+      let endCount = startCount + rowsPerPage
+      if (endCount > this.total) {
+        endCount = this.total
       }
 
-      if (sortBy === 'height' && descending) {
-        startHeight = this.total - (page - 1) * rowsPerPage
-        endHeight = startHeight - rowsPerPage
-        endHeight = endHeight < 0 ? 0 : endHeight
+      if (sortBy === 'count' && descending) {
+        startCount = this.total - (page - 1) * rowsPerPage
+        endCount = startCount - rowsPerPage
+        endCount = endCount < 0 ? 0 : endCount
       }
       console.debug(
         `refreshBlockList, total=${
           this.total
-        }, page=${page}, rowsPerPage=${rowsPerPage}, startHeight=${startHeight}, endHeight=${endHeight}, sortBy=${sortBy}`
+        }, page=${page}, rowsPerPage=${rowsPerPage}, startCount=${startCount}, endCount=${endCount}, sortBy=${sortBy}`
       )
       this.blockList = await blocks.getBlockList(
         this.currentDatabase,
-        startHeight,
-        endHeight
+        startCount,
+        endCount
       )
       this.loading = false
     }

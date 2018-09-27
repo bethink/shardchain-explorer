@@ -29,4 +29,8 @@ new Vue({
 
 window.onbeforeunload = function () {
   localStorage.setItem('lastAddr', store.state.databases.currentDatabase)
+  localStorage.setItem(
+    'addrs',
+    JSON.stringify(store.state.databases.databaseList)
+  )
 }
