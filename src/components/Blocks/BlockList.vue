@@ -3,13 +3,18 @@
     <v-flex md10 sm12>
       <v-data-table :headers="blockListHeaders" :items="blockList" :total-items="total" :pagination.sync="pagination" :loading="loading" class="elevation-1" item-key="count" :rows-per-page-items="[10,20,30,50]">
         <template slot="items" slot-scope="props">
-          <tr class="mono">
+          <tr class="mono" :class="!!props.item.error ? 'red lighten-4' : ''">
             <td>{{ props.item.count }}</td>
             <td>{{ humanReadableTime(props.item.timestamp) }}</td>
-            <td>{{ substr(props.item.hash, 32) }}</td>
+            <td v-if="!!!props.item.error">
+              {{ substr(props.item.hash, 32) }}
+            </td>
+            <td v-else class="error--text text--darken-2">
+              {{ props.item.error.status }}
+            </td>
             <td :class="props.item.queries.length > 0 ? 'primary--text font-weight-bold' : 'grey--text'">{{ props.item.queries.length > 0 ? props.item.queries.length : 'none' }}</td>
             <td>
-              <v-btn flat icon color="primary" :to="{name: 'Block', params: {db: currentDatabase, hash: props.item.count}}">
+              <v-btn flat icon color="primary" :to="{name: 'Block', params: {db: currentDatabase, hash: props.item.count}}" :disabled="!!props.item.error">
                 <v-icon small>mdi-eye</v-icon>
               </v-btn>
             </td>
@@ -72,7 +77,6 @@ export default {
 
   methods: {
     async refreshBlockList () {
-      console.log(this.pagination)
       const { sortBy, descending, page, rowsPerPage } = this.pagination
       this.loading = true
       this.total = (await blocks.getMaxCount(this.currentDatabase)) + 1
@@ -80,6 +84,9 @@ export default {
       let endCount = startCount + rowsPerPage
       if (endCount > this.total) {
         endCount = this.total
+      }
+      if (startCount < 0) {
+        startCount = 0
       }
 
       if (sortBy === 'count' && descending) {

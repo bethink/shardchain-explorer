@@ -55,18 +55,21 @@
                 </v-layout>
               </v-flex>
               <v-list dense class="mono">
-                <v-list-tile avatar v-for="item in latestBlocks" :key="item.count" :to="{name:'Block', params:{db:currentDatabase, hash:item.count}}">
+                <v-list-tile avatar v-for="item in latestBlocks" :key="item.count" :to="{name:'Block', params:{db:currentDatabase, hash:item.count}}" :class="!!item.error ? 'red lighten-4' : ''">
                   <v-list-tile-title>
                     <v-layout row wrap>
                       <v-flex md2 sm2>#{{ item.count }}</v-flex>
                       <v-flex md6 sm6>
                         {{ humanReadableTime(item.timestamp) }}
                       </v-flex>
-                      <v-flex md4 sm4>
+                      <v-flex md4 sm4 v-if="!!!item.error">
                         {{ substr(item.hash, 16) }}
                         <span class="has-sql primary--text" v-if="item.queries.length">
                           (SQL)
                         </span>
+                      </v-flex>
+                      <v-flex md4 sm4 v-else class="error--text text--darken-2">
+                        {{ item.error.status }}
                       </v-flex>
                     </v-layout>
                   </v-list-tile-title>
@@ -157,6 +160,7 @@ export default {
           this.results.push({
             target: 'BLOCK',
             result: `${this.substr(block.hash, 32)} #${block.count}`,
+            error: block.error,
             href: {
               name: 'Block',
               params: {
