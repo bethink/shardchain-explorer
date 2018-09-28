@@ -27,13 +27,12 @@ export default {
     this.$store.dispatch('databases/loadDatabaseList')
   },
 
-  mounted () {
-    this.currentDatabase = localStorage.getItem('lastAddr')
-  },
-
   watch: {
     currentDatabase: function (to, from) {
       console.debug('watch(currentDatabase): ', from, ' --> ', to)
+      if (from === null) {
+        return
+      }
       this.changeDatabase(to)
     }
   },

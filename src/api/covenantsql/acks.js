@@ -7,34 +7,40 @@ export default {
   },
 
   async getSQLQueryOfAck (db, ackHash) {
-    let ackResp = await this.getAckByHash(db, ackHash)
-    let ack = ackResp.data.data.ack
     let sqlQuery = []
-
-    // Now, ignore "read" type
-    if (ack.request.type === 'read') {
-      return sqlQuery
-    }
-
     try {
-      let requestResp = await requests.getRequestByHash(db, ack.request.hash)
-      let request = requestResp.data.data.request
+      const ackResp = await this.getAckByHash(db, ackHash)
+      const ack = ackResp.data.data.ack
+      // Now, ignore "read" type
+      if (ack.request.type === 'read') {
+        return sqlQuery
+      }
+
+      const requestResp = await requests.getRequestByHash(db, ack.request.hash)
+      const request = requestResp.data.data.request
       sqlQuery = request.queries.map(x => {
         return {
-          hashes: {
-            ack: ackHash,
-            reqeust: request.hash,
-            node: request.node
-          },
+          ackHash: ackHash,
+          requestHash: request.hash,
+          nodeHash: request.node,
           type: request.type,
           sql: x,
           timestamp: request.timestamp
         }
       })
     } catch (error) {
-      console.error(`Get request for ACK#${ackHash}: ${error}`)
+      return [
+        {
+          ackHash: ackHash,
+          requestHash: '',
+          nodeHash: '',
+          type: '',
+          sql: '',
+          timestamp: 0,
+          error: error.response.data
+        }
+      ]
     }
-
     return sqlQuery
   },
 
