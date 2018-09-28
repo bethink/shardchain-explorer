@@ -1,7 +1,8 @@
 <template>
   <v-layout row wrap justify-center>
     <v-flex md8 sm12>
-      <v-card>
+      <sp-error-card :error="error"></sp-error-card>
+      <v-card v-if="ack">
         <v-card-title primary-title>
           <div class="headline">ACK - {{ substr(ack.hash, 12) }}</div>
           <v-container grid-list-md>
@@ -65,10 +66,16 @@
 
 <script>
 import { acks } from '@/api/covenantsql'
+import SPErrorCard from '@/components/SPErrorCard'
 import toolkit from '@/components/Utils/toolkit'
 
 export default {
   mixins: [toolkit],
+
+  components: {
+    'sp-error-card': SPErrorCard
+  },
+
   mounted () {
     this.currentDatabase = this.$route.params.db
     this.refreshAck()
@@ -76,15 +83,17 @@ export default {
 
   data () {
     return {
-      ack: {
-        hash: '',
-        request: {
-          hash: ''
-        },
-        response: {
-          hash: ''
-        }
-      }
+      // ack: {
+      //   hash: '',
+      //   request: {
+      //     hash: ''
+      //   },
+      //   response: {
+      //     hash: ''
+      //   }
+      // },
+      ack: null,
+      error: null
     }
   },
 
@@ -101,11 +110,15 @@ export default {
 
   methods: {
     async refreshAck () {
-      let resp = await acks.getAckByHash(
-        this.$route.params.db,
-        this.$route.params.hash
-      )
-      this.ack = resp.data.data.ack
+      try {
+        let resp = await acks.getAckByHash(
+          this.$route.params.db,
+          this.$route.params.hash
+        )
+        this.ack = resp.data.data.ack
+      } catch (error) {
+        this.error = error.response.data
+      }
     }
   }
 }

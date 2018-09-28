@@ -1,19 +1,8 @@
 <template>
   <v-layout row wrap justify-center>
     <v-flex md8 xs12>
-      <v-card v-if="!request.hash">
-        <v-card-title primary-title>
-          <v-flex headline text-md-center text-xs-center>
-            NOT FOUND
-          </v-flex>
-        </v-card-title>
-        <v-card-text>
-          <v-flex text-md-center text-xs-center grey--text>
-            Server Response: {{ request }}
-          </v-flex>
-        </v-card-text>
-      </v-card>
-      <v-card v-if="request.hash">
+      <sp-error-card :error="error"></sp-error-card>
+      <v-card v-if="request">
         <v-card-title primary-title>
           <div class="headline">Request - {{ substr(request.hash, 12) }}</div>
         </v-card-title>
@@ -58,10 +47,16 @@
 
 <script>
 import { requests } from '@/api/covenantsql'
+import SPErrorCard from '@/components/SPErrorCard'
 import toolkit from '@/components/Utils/toolkit'
 
 export default {
   mixins: [toolkit],
+
+  components: {
+    'sp-error-card': SPErrorCard
+  },
+
   mounted () {
     this.currentDatabase = this.$route.params.db
     this.refreshRequest()
@@ -69,9 +64,8 @@ export default {
 
   data () {
     return {
-      request: {
-        hash: ''
-      }
+      request: null,
+      error: null
     }
   },
 
@@ -95,7 +89,7 @@ export default {
         )
         this.request = resp.data.data.request
       } catch (error) {
-        this.request = error.response.data
+        this.error = error.response.data
       }
     }
   }
