@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## 1.6.0 (Sep 28, 2018)
+
+- Show errors explicitly in components;
+- Add single page error card component;
+- Fix incorrect URL jump while page loading;
+- Catch errors while gathering SQL statements.
+
 ## 1.5.0 (Sep 27, 2018)
 
 - Show error information in block lists.
