@@ -1,6 +1,6 @@
 {
   "name": "aletheia",
-  "version": "1.5.0",
+  "version": "1.6.0",
   "description": "The CovenantSQL blockchain explorer",
   "author": "mingjie.tang@covenantsql.io",
   "private": true,
