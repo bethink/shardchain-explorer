@@ -3,7 +3,7 @@
     <v-flex md8 xs12 v-if="error">
       <sp-error-card :error="error"></sp-error-card>
     </v-flex>
-    <v-card v-if="block.hash">
+    <v-card v-else>
       <v-card-title primary-title>
         <div class="headline">
           Block #{{ block.count }}
@@ -173,6 +173,7 @@ export default {
 
   methods: {
     initialize () {
+      this.error = null
       this.currentDatabase = this.$route.params.db
       this.refreshBlock()
     },
@@ -200,7 +201,7 @@ export default {
 
   watch: {
     $route (to, from) {
-      console.debug('watch($route):', from, ' --> ', to)
+      console.debug(`watch($route): ${from.path} -> ${to.path}`)
       this.initialize()
     }
   }
