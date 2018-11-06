@@ -1,8 +1,12 @@
 # CHANGELOG
 
+## 1.7.1 (Nov 7, 2018)
+
+- Fix nginx config envsubst bug.
+
 ## 1.7.0 (Nov 6, 2018)
 
-- Dockerize
+- Dockerize.
 
 ## 1.6.1 (Sep 28, 2018)
 
