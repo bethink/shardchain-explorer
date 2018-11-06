@@ -9,12 +9,12 @@ server {
 	location / {
 		root /usr/share/nginx/html/;
 		index index.html;
-		try_files $uri $uri/ /index.html;
+		try_files ${MAGIC_DOLLAR}uri ${MAGIC_DOLLAR}uri/ /index.html;
 	}
 
 	location /apiproxy.covenantsql/ {
-		proxy_set_header Host $host;
-		proxy_set_header X-Real-IP $remote_addr;
+		proxy_set_header Host ${MAGIC_DOLLAR}host;
+		proxy_set_header X-Real-IP ${MAGIC_DOLLAR}remote_addr;
 		proxy_pass http://covenantsql_api_backend/;
 	}
 }

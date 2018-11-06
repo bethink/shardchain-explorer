@@ -18,6 +18,6 @@ WORKDIR /app
 COPY ./dist/ /usr/share/nginx/html/
 COPY ./explorer.conf.template /etc/nginx/conf.d/servers/
 
-CMD [ "/bin/sh", "-c", "envsubst < /etc/nginx/conf.d/servers/explorer.conf.template > /etc/nginx/conf.d/servers/explorer.conf && exec nginx -g 'daemon off;'" ]
+CMD [ "/bin/sh", "-c", "MAGIC_DOLLAR='$' envsubst < /etc/nginx/conf.d/servers/explorer.conf.template > /etc/nginx/conf.d/default.conf && exec nginx -g 'daemon off;'" ]
 
 EXPOSE 80
