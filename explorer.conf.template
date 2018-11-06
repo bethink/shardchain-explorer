@@ -1,0 +1,20 @@
+upstream covenantsql_api_backend {
+	server ${COVENANTSQL_OBSERVER_ADDR};
+}
+
+server {
+	listen 80;
+	server_name ${COVENANTSQL_EXPLORER_DOMAIN};
+
+	location / {
+		root /usr/share/nginx/html/;
+		index index.html;
+		try_files $uri $uri/ /index.html;
+	}
+
+	location /apiproxy.covenantsql/ {
+		proxy_set_header Host $host;
+		proxy_set_header X-Real-IP $remote_addr;
+		proxy_pass http://covenantsql_api_backend/;
+	}
+}

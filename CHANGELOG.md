@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## 1.7.0 (Nov 6, 2018)
+
+- Dockerize
+
 ## 1.6.1 (Sep 28, 2018)
 
 - Fix block navigation render collision.
