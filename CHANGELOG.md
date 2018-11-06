@@ -4,6 +4,10 @@
 
 - Dockerize
 
+## 1.6.1 (Sep 28, 2018)
+
+- Fix block navigation render collision.
+
 ## 1.6.0 (Sep 28, 2018)
 
 - Show errors explicitly in components;
