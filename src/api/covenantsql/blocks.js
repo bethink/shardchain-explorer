@@ -16,13 +16,33 @@ export default {
     return api.get(`/v1/block/${db}/${hash}`)
   },
 
+  getBlockProxyV3 (db, key, params) {
+    if (key.length !== 64) {
+      return this.getBlockByCountV3(db, key, params)
+    }
+    return this.getBlockByHashV3(db, key, params)
+  },
+
+  getBlockByCountV3 (db, count, params) {
+    return api.get(`/v3/count/${db}/${count}`, { params: params })
+  },
+
+  getBlockByHashV3 (db, hash, params) {
+    return api.get(`/v3/block/${db}/${hash}`, { params: params })
+  },
+
   async getBlockByCountIgnoreError (db, count) {
     try {
-      const resp = await this.getBlockByCount(db, count)
+      const resp = await this.getBlockByCountV3(db, count, { size: 1 })
       let block = resp.data.data.block
       // if (block.count >= 90 && block.count < 94) {
       //   block.error = { status: 'mock error' }
       // }
+      if (block.pagination) {
+        block.totalQueries = block.pagination.total || 0
+      } else {
+        block.totalQueries = block.queries.length
+      }
       return block
     } catch (error) {
       const errorResp = error.response.data
@@ -35,7 +55,8 @@ export default {
         queries: [],
         timestamp: 0,
         version: 0,
-        error: errorResp
+        error: errorResp,
+        totalQueries: 0
       }
     }
   },
