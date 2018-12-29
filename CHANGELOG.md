@@ -1,5 +1,16 @@
 # CHANGELOG
 
+## 1.8.0 (Dec 29, 2018)
+
+- Add v3 blocks api (support pagination) ([1156c6f](https://gitlab.com/thunderdb/aletheia/commit/1156c6f))
+- Block component support queries pagination ([9141282](https://gitlab.com/thunderdb/aletheia/commit/9141282))
+- Bump version to 1.7.1 ([b217ab2](https://gitlab.com/thunderdb/aletheia/commit/b217ab2))
+- Component BlockList use v3 api ([1508047](https://gitlab.com/thunderdb/aletheia/commit/1508047))
+- Fix nginx config envsubst bug ([b71d0df](https://gitlab.com/thunderdb/aletheia/commit/b71d0df))
+- Home component latest blocks use v3 api ([eddc71e](https://gitlab.com/thunderdb/aletheia/commit/eddc71e))
+- Remove timezone in human readable time format ([f209718](https://gitlab.com/thunderdb/aletheia/commit/f209718))
+- Upgrade node-sass ([1e7fae5](https://gitlab.com/thunderdb/aletheia/commit/1e7fae5))
+
 ## 1.7.1 (Nov 7, 2018)
 
 - Fix nginx config envsubst bug.

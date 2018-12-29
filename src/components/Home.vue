@@ -154,7 +154,7 @@ export default {
       console.info(`search: ${this.searchContent}`)
       // Define result object and show them in a list
       blocks
-        .getBlockProxy(this.currentDatabase, this.searchContent)
+        .getBlockProxyV3(this.currentDatabase, this.searchContent, {size: 1})
         .then(resp => {
           let block = resp.data.data.block
           this.results.push({

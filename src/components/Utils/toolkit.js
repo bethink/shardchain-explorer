@@ -7,7 +7,7 @@ export default {
     },
 
     humanReadableTime (t) {
-      return moment(t).format()
+      return moment(t).format('YYYY-MM-DD HH:mm:ss')
     }
   }
 }
