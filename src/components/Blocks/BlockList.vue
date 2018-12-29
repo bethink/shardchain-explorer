@@ -12,7 +12,7 @@
             <td v-else class="error--text text--darken-2">
               {{ props.item.error.status }}
             </td>
-            <td :class="props.item.queries.length > 0 ? 'primary--text font-weight-bold' : 'grey--text'">{{ props.item.queries.length > 0 ? props.item.queries.length : 'none' }}</td>
+            <td :class="props.item.totalQueries > 0 ? 'primary--text font-weight-bold' : 'grey--text'">{{ props.item.totalQueries > 0 ? props.item.totalQueries : 'none' }}</td>
             <td>
               <v-btn flat icon color="primary" :to="{name: 'Block', params: {db: currentDatabase, hash: props.item.count}}" :disabled="!!props.item.error">
                 <v-icon small>mdi-eye</v-icon>
