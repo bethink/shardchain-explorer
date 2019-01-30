@@ -4,7 +4,26 @@ set -o errexit
 set -o nounset
 set -o pipefail
 
-if [[ "${IMAGE_NAME:-notset}" == "notset" ]]; then echo "Missing IMAGE_NAME" 1>&2; exit 1; fi
+
+# APP_NAME: com.github.ggicci.sebastian, org.example.helloworld
+if [[ "${APP_NAME:-notset}" == "notset" ]]; then
+    echo "Missing APP_NAME, e.g. com.github.ggicci.sebastian, org.example.helloworld" 1>&2
+    exit 1
+fi
+
+# IMAGE_NAME: ggicci/sebastian, example/helloworld
+if [[ "${IMAGE_NAME:-notset}" == "notset" ]]; then
+    echo "Missing IMAGE_NAME" 1>&2
+    exit 1
+fi
+
+ARG_NAME_IMAGE_CREATED="${APP_NAME//\./_}_image_created"
+ARG_NAME_IMAGE_VERSION="${APP_NAME//\./_}_image_version"
+ARG_NAME_IMAGE_REVISION="${APP_NAME//\./_}_image_revision"
+
+ARG_NAME_IMAGE_CREATED="${ARG_NAME_IMAGE_CREATED//-/_}"
+ARG_NAME_IMAGE_VERSION="${ARG_NAME_IMAGE_VERSION//-/_}"
+ARG_NAME_IMAGE_REVISION="${ARG_NAME_IMAGE_REVISION//-/_}"
 
 COLOR_BLACK='0'
 COLOR_RED='1'
@@ -42,6 +61,11 @@ util::printf_yellow() { util::printf_style "${COLOR_FG}${COLOR_YELLOW}" "$@"; }
 util::printf_red()    { util::printf_style "${COLOR_FG}${COLOR_RED}" "$@"; }
 util::printf_green()  { util::printf_style "${COLOR_FG}${COLOR_GREEN}" "$@"; }
 
+util::rfc3339_now() {
+    local now="$(date +"%Y-%m-%dT%H:%M:%S%z")"
+    echo "${now:0:22}:${now:22}"
+}
+
 git::ensure_git() {
     if ! git rev-parse --git-dir &>/dev/null; then
         >&2 util::printf_red "ERROR: not a git repository\n"
@@ -51,14 +75,14 @@ git::ensure_git() {
 git::get_commit() { git rev-parse --short HEAD; }
 git::get_dirty() { test -n "`git status --porcelain`" && echo "+CHANGES" || true; }
 git::get_description() { git describe --tags --always; }
-docker::get_label() { echo "$(docker image inspect -f "{{ .Config.Labels.$1 }}" ${IMAGE_NAME}:latest 2>/dev/null)"; }
+docker::get_label() { echo "$(docker image inspect -f "{{ index .Config.Labels \"$1\" }}" ${IMAGE_NAME}:latest 2>/dev/null)"; }
 docker::image_exists() { [[ "$(docker images -q "$1" 2>/dev/null)" != "" ]]; }
 
 env::setup() {
     git::ensure_git
     COMMIT="$(git::get_commit)$(git::get_dirty)"
     VERSION="$(git::get_description)"
-    SHIP_VERSION="$(docker::get_label "version")"
+    SHIP_VERSION="$(docker::get_label "${APP_NAME}.image.version")"
     IMAGE_TAR=""
     IMAGE_TAR_GZ=""
 
@@ -94,13 +118,19 @@ command::build() {
         exit 1
     fi
 
-    # TODO: support a given Dockerfile
+    # Check Dockerfile
+    if [[ "$(grep "${ARG_NAME_IMAGE_VERSION}" Dockerfile 2>/dev/null)" == "" ]]; then
+        >&2 util::printf_red "ERROR: please include the content of command \"seba.sh dockerfile\" in your Dockerfile"
+        echo
+        exit 1
+    fi
 
     docker build \
         --tag "${IMAGE_NAME}:${VERSION}" \
         --tag "${IMAGE_NAME}:latest" \
-        --build-arg COMMIT=${COMMIT} \
-        --build-arg VERSION=${VERSION} \
+        --build-arg ${ARG_NAME_IMAGE_CREATED}="$(util::rfc3339_now)" \
+        --build-arg ${ARG_NAME_IMAGE_VERSION}="${VERSION}" \
+        --build-arg ${ARG_NAME_IMAGE_REVISION}="${COMMIT}" \
         .
 
     util::printf_green "build successfully!\n"
@@ -238,6 +268,32 @@ command::env() {
     echo "${!1}"
 }
 
+# Generate sample dockerfile
+command::dockerfile() {
+    echo "
+# 1. DO NOT remove these ARGs and LABELs
+# 2. Edit contents wrapped by '<>' to make your docker images better than 90% of existing ones
+FROM <IMAGE>
+
+ARG ${ARG_NAME_IMAGE_CREATED}
+ARG ${ARG_NAME_IMAGE_VERSION}
+ARG ${ARG_NAME_IMAGE_REVISION}
+
+LABEL \\
+  ${APP_NAME}.image.created=\"\${${ARG_NAME_IMAGE_CREATED}}\" \\
+  ${APP_NAME}.image.version=\"\${${ARG_NAME_IMAGE_VERSION}}\" \\
+  ${APP_NAME}.image.revision=\"\${${ARG_NAME_IMAGE_REVISION}}\" \\
+  ${APP_NAME}.image.authors=\"<contact details of the people or organization responsible for the image>\" \\
+  ${APP_NAME}.image.url=\"<URL to find more information on the image>\" \\
+  ${APP_NAME}.image.documentation=\"<URL to get documentation on the image>\" \\
+  ${APP_NAME}.image.source=\"<URL to get source code for building the image>\" \\
+  ${APP_NAME}.image.vendor=\"<Name of the distributing entity, organization or individual>\" \\
+  ${APP_NAME}.image.licenses=\"<License\(s\) under which contained software is distributed as an SPDX License Expression>\" \\
+  ${APP_NAME}.image.title=\"<Human-readable title of the image>\" \\
+  ${APP_NAME}.image.description=\"<Human-readable description of the software packaged in the image>\"
+"
+}
+
 usage() {
     echo "
 Usage: seba [command]
@@ -249,6 +305,7 @@ command:
     ship        ship docker images
     install     install docker images
     env         get value of seba variables
+    dockerfile  show a template Dockerfile
 
 available seba variables:
     COMMIT, VERSION, SHIP_VERSION, IMAGE_NAME, IMAGE_TAR, IMAGE_TAR_GZ
@@ -266,7 +323,7 @@ main() {
     shift
 
     case "${command}" in
-        status|build|save|ship|install|env)
+        status|build|save|ship|install|env|dockerfile)
             "command::${command}" "$@"
             ;;
         *)

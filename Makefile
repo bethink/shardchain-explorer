@@ -1,6 +1,8 @@
 default: build
 
+export APP_NAME=io.covenantsql.explorer
 export IMAGE_NAME=covenantsql/explorer
+
 SEBA := "./seba.sh"
 
 .PHONY: seba-update status build install
