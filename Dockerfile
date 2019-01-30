@@ -8,7 +8,7 @@ ENV COVENANTSQL_OBSERVER_ADDR=localhost:4661
 
 LABEL \
     name="aletheia" \
-    url="https://gitlab.com/thunderdb/aletheia.git" \
+    url="https://github.com/CovenantSQL/shardchain-explorer.git" \
     maintainer="mingjie.tang@covenantsql.io" \
     authors="Ggicci" \
     commit="${COMMIT}" \
