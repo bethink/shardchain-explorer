@@ -15,6 +15,7 @@ status:
 	@$(SEBA) status
 
 build:
+	yarn build
 	@$(SEBA) build
 
 install:
