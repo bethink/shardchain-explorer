@@ -2,7 +2,6 @@ import axios from 'axios'
 
 const api = axios.create({
   baseURL: process.env.API_COVENANTSQL,
-  timeout: 10000,
   headers: {
     'X-User-Agent': 'aletheia-webui'
   },
