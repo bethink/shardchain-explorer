@@ -9,6 +9,7 @@
           Block #{{ block.count }}
         </div>
       </v-card-title>
+      <v-progress-linear :active="pageLoading" :indeterminate="true" color="primary" height="3"></v-progress-linear>
       <v-card-text>
         <v-container grid-list-md pt-0>
           <v-layout row wrap class="mono" justify-center>
@@ -63,13 +64,20 @@
                   <tr>
                     <td>{{ humanReadableTime(props.item.timestamp) }}</td>
                     <td>
-                    <router-link :to="{name: 'Request', params: {db: currentDatabase, hash: props.item.requestHash}}">
-                            {{ substr(props.item.requestHash, 16) }}
-                          </router-link>
+                      <router-link :to="{name: 'Request', params: {db: currentDatabase, hash: props.item.requestHash}}">
+                        {{ substr(props.item.requestHash, 16) }}
+                      </router-link>
                     </td>
                     <td :class="`sql-type-${props.item.type}`">{{ props.item.type }}</td>
-                    <td>{{ props.item.sql.pattern }}</td>
-                    <td>{{ props.item.sql.args }}</td>
+                    <td>
+                      <pre>{{ props.item.sql.pattern }}</pre>
+                    </td>
+                    <td>{{ props.item.sql.queries }}</td>
+                    <td>
+                      <v-btn flat icon color="primary" :to="{name: 'Request', params: {db: currentDatabase, hash: props.item.requestHash}}">
+                        <v-icon small>mdi-eye</v-icon>
+                      </v-btn>
+                    </td>
                   </tr>
                 </template>
               </v-data-table>
@@ -113,8 +121,9 @@ export default {
         { text: 'Time', value: 'time', sortable: false },
         { text: 'Hash', value: 'hash', sortable: false },
         { text: 'Type', value: 'type', sortable: false },
-        { text: 'SQL', value: 'sql', sortable: false },
-        { text: 'Args', value: 'args', sortable: false }
+        { text: 'SQL Preview', value: 'sql', sortable: false },
+        { text: 'Queries', value: 'queries', sortable: false },
+        { text: 'Details', value: '', sortable: false }
       ],
       error: null,
       pagination: {
@@ -125,7 +134,8 @@ export default {
         totalItem: 0
       },
       total: 0,
-      loading: false
+      loading: false,
+      pageLoading: true
     }
   },
 
@@ -168,8 +178,23 @@ export default {
             type: x.request.type,
             timestamp: x.request.timestamp,
             sql: {
-              pattern: x.request.queries.map(x => x.pattern).join(),
-              args: x.request.queries.map(x => x.args).join()
+              pattern: (() => {
+                let overflow = false
+                let patternExcerpt = ''
+                for (let i = 0; i < x.request.queries.length; i++) {
+                  if (patternExcerpt !== '') {
+                    patternExcerpt += '\n'
+                  }
+                  patternExcerpt += x.request.queries[i].pattern
+                  if (patternExcerpt.length > 200) {
+                    overflow = true
+                    break
+                  }
+                }
+                return patternExcerpt.substring(0, 200) + (overflow ? '…' : '')
+              })(),
+              queries: x.request.queries.length
+              // args: x.request.queries.reduce((acc, x) => acc + x.args.length, 0)
             }
           }
         })
@@ -180,9 +205,11 @@ export default {
         }
         console.debug('Gather SQL list:', this.sqlList)
       } catch (error) {
-        this.error = error.response.data
+        console.error(error)
+        // this.error = error.response.error
       }
       this.loading = false
+      this.pageLoading = false
     }
   },
 

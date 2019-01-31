@@ -1,7 +1,7 @@
 <template>
   <v-layout row wrap justify-center>
     <v-flex md10 sm12>
-      <v-data-table :headers="blockListHeaders" :items="blockList" :total-items="total" :pagination.sync="pagination" :loading="loading" class="elevation-1" item-key="count" :rows-per-page-items="[10,20,30,50]">
+      <v-data-table :headers="blockListHeaders" :items="blockList" :total-items="pagination.totalItems" :pagination.sync="pagination" :loading="loading" class="elevation-1" item-key="count" :rows-per-page-items="paginationSizeList" disable-page-reset>
         <template slot="items" slot-scope="props">
           <tr class="mono" :class="!!props.item.error ? 'red lighten-4' : ''">
             <td>{{ props.item.count }}</td>
@@ -31,9 +31,10 @@ import toolkit from '@/components/Utils/toolkit'
 
 export default {
   mixins: [toolkit],
+
   mounted () {
     this.currentDatabase = this.$route.params.db
-    this.refreshBlockList()
+    // this.loadURL()
   },
 
   data () {
@@ -44,14 +45,16 @@ export default {
         { text: 'Time', value: 'time', sortable: false },
         { text: 'Hash', value: 'hash', sortable: false },
         { text: 'SQL', value: 'sql', sortable: false },
-        { text: 'View', Value: 'view', sortable: false }
+        { text: 'Details', Value: 'view', sortable: false }
       ],
+      paginationSizeList: [10, 20, 30, 50],
       pagination: {
+        descending: true,
+        page: 1,
         rowsPerPage: 10,
         sortBy: 'count',
-        descending: true
+        totalItems: 0
       },
-      total: 0,
       loading: false
     }
   },
@@ -68,35 +71,42 @@ export default {
   },
 
   watch: {
-    pagination: {
-      handler () {
+    'pagination': {
+      handler: function () {
         this.refreshBlockList()
       }
     }
   },
 
   methods: {
+    loadURL () {
+      this.pagination.descending = !this.$route.query.asc
+      this.pagination.page = parseInt(this.$route.query.page) || 1
+      let size = parseInt(this.$route.query.size) || 10
+      this.pagination.rowsPerPage = this.paginationSizeList.includes(size) ? size : 10
+    },
+
     async refreshBlockList () {
       const { sortBy, descending, page, rowsPerPage } = this.pagination
       this.loading = true
-      this.total = (await blocks.getMaxCount(this.currentDatabase)) + 1
+      this.pagination.totalItems = (await blocks.getMaxCount(this.currentDatabase)) + 1
       let startCount = (page - 1) * rowsPerPage
       let endCount = startCount + rowsPerPage
-      if (endCount > this.total) {
-        endCount = this.total
+      if (endCount > this.pagination.totalItems) {
+        endCount = this.pagination.totalItems
       }
       if (startCount < 0) {
         startCount = 0
       }
 
       if (sortBy === 'count' && descending) {
-        startCount = this.total - (page - 1) * rowsPerPage
+        startCount = this.pagination.totalItems - (page - 1) * rowsPerPage
         endCount = startCount - rowsPerPage
         endCount = endCount < 0 ? 0 : endCount
       }
       console.debug(
         `refreshBlockList, total=${
-          this.total
+          this.pagination.totalItems
         }, page=${page}, rowsPerPage=${rowsPerPage}, startCount=${startCount}, endCount=${endCount}, sortBy=${sortBy}`
       )
       this.blockList = await blocks.getBlockList(
