@@ -3,7 +3,10 @@
     <v-app>
       <v-toolbar color="primary" app fixed prominent dark class="pt-1">
         <v-toolbar-title>
-          <router-link :to="{name:'Database', params:{db: currentDatabase}}" class="site-title">CovenantSQL Explorer</router-link>
+          <router-link :to="{name:'Database', params:{db: currentDatabase}}" class="site-title">
+            <img :src="image" class="logo" />
+            <span class="explorer-text">DataTX</span>
+          </router-link>
         </v-toolbar-title>
         <v-spacer></v-spacer>
         <v-toolbar-items>
@@ -22,6 +25,7 @@
 <script>
 import { createNamespacedHelpers } from 'vuex'
 import DatabaseSelector from '@/components/DatabaseSelector'
+import image from '@/assets/guardiansql-full-logo.png'
 const { mapState } = createNamespacedHelpers('databases')
 
 export default {
@@ -35,16 +39,27 @@ export default {
     ...mapState({
       currentDatabase: state => state.currentDatabase
     })
+  },
+
+  data: function () {
+    return {
+      image: image
+    }
   }
 }
 </script>
 
 <style>
+.logo {
+    height: 33px;
+    margin-bottom: 0px;
+    width: auto;
+}
 .mono {
   font-family: Menlo, Consolas, monospace;
 }
 .site-title {
-  color: white;
+  color: black;
   text-decoration: none;
 }
 .sql-type-read {
@@ -52,5 +67,8 @@ export default {
 }
 .sql-type-write {
   color: #d32f2f;
+}
+.explorer-text {
+
 }
 </style>

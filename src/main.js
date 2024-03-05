@@ -12,7 +12,8 @@ import '@mdi/font/css/materialdesignicons.min.css'
 
 Vue.use(Vuetify, {
   theme: {
-    primary: '#1272e4'
+    // primary: '#1272e4'
+    primary: '#fff'
   }
 })
 

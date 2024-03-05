@@ -1,8 +1,8 @@
 {
-  "name": "covenantsql-shardchain-explorer",
+  "name": "guardiansql-shardchain-explorer",
   "version": "1.9.0",
-  "description": "CovenantSQL shard chain web explorer",
-  "author": "ggicci.t@gmail.com",
+  "description": "GuardianSQL shard chain web explorer",
+  "author": "manojs.nitt@gmail.com",
   "private": true,
   "scripts": {
     "dev": "webpack-dev-server --inline --progress --config build/webpack.dev.conf.js",
